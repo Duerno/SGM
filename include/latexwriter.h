@@ -10,6 +10,8 @@
 #include <algorithm>
 #include <iomanip>
 
+extern const std::string ROOT_FOLDER;
+
 class LatexWriter {
 private:
     static std::string print_statistics(Discipline discipline,
@@ -17,6 +19,7 @@ private:
                         std::string type);
 public:
     LatexWriter(void);
+    static void generate_main(std::string prefix);
     static void generate_latex(Discipline discipline);
     static void generate_header(Discipline discipline);
     static void generate_grades(Discipline discipline);

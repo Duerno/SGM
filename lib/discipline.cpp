@@ -1,7 +1,8 @@
 #include "discipline.h"
 
-Discipline::Discipline(std::string configfile) {
-    ConfigFile cf(configfile);
+Discipline::Discipline(std::string prefix) {
+    this->prefix = prefix;
+    ConfigFile cf(prefix + ".ini");
     parse_discipline_section(cf);
     parse_evaluation_sets(cf);
     parse_students();

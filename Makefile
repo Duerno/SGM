@@ -8,13 +8,9 @@ SRCDIR = src
 LIBDIR = lib
 INCDIR = include
 BUILDDIR = build
-TARGETDIR = app
-TARGET = runner
+TARGET = sgm
 
-all:
-	@make install
-
-install:
+compile:
 	@echo " Linking..."
 	$(CC) $(CFLAGS) -c $(LIBDIR)/*.$(SRCEXT) -I $(INCDIR)
 	$(CC) $(CFLAGS) -c $(SRCDIR)/*.$(SRCEXT) -I $(INCDIR) -L $(LIBDIR)
@@ -23,4 +19,9 @@ install:
 
 	@echo " Building..."
 	$(CC) $(CFLAGS) $(BUILDDIR)/*.o -o $(TARGET)
-	@mv $(TARGET) $(TARGETDIR)
+
+install:
+	@echo " Installing..."
+	sudo mv $(TARGET) /usr/bin
+	mkdir -p ~/.sgm
+	cp static ~/.sgm/. -r

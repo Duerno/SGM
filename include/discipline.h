@@ -28,7 +28,8 @@ public:
     std::string show_mention, show_others, show_statistics;
     std::vector<Student> students;
     std::vector<EvaluationSet> evaluationsets;
-    Discipline(std::string configfile);
+    std::string prefix;
+    Discipline(std::string prefix);
     void info(void);
     void view_students(void);
     bool has_hidden_grades(void);

@@ -17,12 +17,23 @@ static std::string print_grade(double grade, const unsigned int precision = 1) {
 LatexWriter::LatexWriter() {
 }
 
+void LatexWriter::generate_main(std::string prefix) {
+    std::string filename(".latex/main_" + prefix + ".tex");
+    std::ofstream main_tex(filename, std::fstream::app);
+    main_tex << "\\input{.latex/header_" << prefix << "}\n\n";
+    main_tex << "\\begin{huge}\\begin{center}\n";
+    main_tex << "\t\\textbf{\\textsc{Menções Finais}}\n";
+    main_tex << "\\end{center}\\end{huge}\n\n";
+    main_tex << "\\input{.latex/grades_" << prefix << "}\n\n";
+    main_tex << "\\end{document}\n";
+    main_tex.close();
+}
 void LatexWriter::generate_latex(Discipline discipline) {
     LatexWriter::generate_header(discipline);
     LatexWriter::generate_grades(discipline);
 }
 void LatexWriter::generate_header(Discipline discipline) {
-    std::ofstream header(".latex/header.tex");
+    std::ofstream header(".latex/header_" + discipline.prefix + ".tex");
     header << "\\begin{center}\n\\begin{tabular}[h]{llll}\n\\hline\n";
     header << bold("Curso:") << " & " << discipline.course << " &\n";
     header << bold("Semestre/Ano:") << " & " << discipline.semester << " \\\\\n";
@@ -73,7 +84,7 @@ std::string LatexWriter::print_statistics(Discipline discipline,
     return result.str();
 }
 void LatexWriter::generate_grades(Discipline discipline) {
-    std::ofstream grades(".latex/grades.tex");
+    std::ofstream grades(".latex/grades_" + discipline.prefix + ".tex");
     uint num_columns = 2; // Registration ID + Final Scores
     if(discipline.show_others == "true")
         num_columns++;
