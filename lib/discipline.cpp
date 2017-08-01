@@ -70,13 +70,13 @@ std::string Discipline::final_mention(Student student) {
     double score = final_score(student);
     if(score < 0.1)
         return "SR";
-    else if(score < 2.9)
+    else if(score < 3.0)
         return "II";
-    else if(score < 4.9)
+    else if(score < 5.0)
         return "MI";
-    else if(score < 6.9)
+    else if(score < 7.0)
         return "MM";
-    else if(score < 8.9)
+    else if(score < 9.0)
         return "MS";
     else
         return "SS";
