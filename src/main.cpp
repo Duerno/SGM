@@ -36,7 +36,7 @@ void genpdf(std::string prefix = default_prefix) {
     system(pdfcmd.c_str());
     system(pdfcmd.c_str());
     system("rm *.log *.aux");
-    system(("evince " + prefix + ".pdf &").c_str());
+    // system(("evince " + prefix + ".pdf &").c_str());
 }
 
 int main(int argc, char *argv[]) {
