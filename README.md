@@ -4,7 +4,7 @@ Sistema de gerenciamento de menções.
 
 ### Dependências ###
 
-* __g++ >= 5__
+* __g++ >= 4.8__
 * __pdflatex__
 
 ### Instalação ###

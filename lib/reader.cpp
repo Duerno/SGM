@@ -29,13 +29,12 @@ static std::string capitalize(std::string source) {
     return result;
 }
 
-static std::ofstream create_file(std::string path) {
+static void create_file(std::string path, std::ofstream& ofs) {
     std::cerr << "File '" << path << "' could not be opened.\n";
     std::cerr << "Creating file '" << path << "'.\n";
     std::string dirname = path.substr(0, path.find('/'));
     system(std::string("mkdir -p \"" + dirname + "\"").c_str());
-    std::ofstream ofs(path);
-    return ofs;
+    ofs.open(path);
 }
 
 Reader::Reader() {
@@ -91,7 +90,8 @@ std::map<std::string, double> Reader::read_grades(std::string filename,
                         const double MAX_SCORE, std::vector<Student> students) {
     std::ifstream fstudents(filename);
     if(not fstudents.good()) {
-        std::ofstream ofs = create_file(filename);
+        std::ofstream ofs;
+        create_file(filename, ofs);
         Discipline::sort_mode = "name";
         std::sort(students.begin(), students.end());
         for(auto student : students) {
@@ -126,7 +126,8 @@ std::map<std::string, double> Reader::read_uri_grades(std::string filename,
     }
     std::ifstream fstudents(filename);
     if(not fstudents.good()) {
-        std::ofstream ofs = create_file(filename);
+        std::ofstream ofs;
+        create_file(filename, ofs);
         ofs << "Sample URI Student\t\t\t\t\t\t\t0%\n";
         ofs.close();
         return std::map<std::string, double>();
@@ -146,7 +147,8 @@ std::map<std::string, double> Reader::read_boca_grades(std::string filename,
                                                 const double NUM_PROBLEMS) {
     std::ifstream fstudents(filename);
     if(not fstudents.good()) {
-        std::ofstream ofs = create_file(filename);
+        std::ofstream ofs;
+        create_file(filename, ofs);
         ofs << "00\t00/0000000\tSample BOCA User\t\t\t\t\t\t\t0 (0)\n";
         ofs.close();
         return std::map<std::string, double>();
