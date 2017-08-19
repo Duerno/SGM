@@ -30,3 +30,8 @@ Após a instalação, será possível utilizar os comandos:
 ### Exemplo de uso ###
 
 O repositório contém uma pasta chamada __sample__ com um exemplo de utilização do sistema SGM.
+
+### Licença ###
+
+SGM5000 é desenvolvido sob a [Licença GPLv3](LICENSE.txt).
+
