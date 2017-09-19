@@ -149,7 +149,7 @@ std::map<std::string, double> Reader::read_boca_grades(std::string filename,
     if(not fstudents.good()) {
         std::ofstream ofs;
         create_file(filename, ofs);
-        ofs << "00\t00/0000000\tSample BOCA User\t\t\t\t\t\t\t0 (0)\n";
+        ofs << "00\t00/0000000/1\tSample BOCA User\t\t\t\t\t\t\t0 (0)\n";
         ofs.close();
         return std::map<std::string, double>();
     }
@@ -160,6 +160,7 @@ std::map<std::string, double> Reader::read_boca_grades(std::string filename,
         std::stringstream line(str);
         getline(line, str, '\t'); // read number
         getline(line, id, '\t'); // read registration id
+        id = trim(id).substr(0,10); // ignore "/1" after id
         getline(line, str); // read line
         int it = str.size() - 1;
         while(str[it] != '(') it--;
