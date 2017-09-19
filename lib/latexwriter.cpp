@@ -78,9 +78,28 @@ std::string LatexWriter::print_statistics(Discipline discipline,
                 result << print_grade(it->second, 2);
             else
                 result << "-";
-        } else // evset.show_in_pdf == "none"
-            continue;
+        } else {
+            if(discipline.show_others == "true" &&
+                                            discipline.has_hidden_grades()) {
+                result << " & ";
+                auto it = statistic.find(others_id);
+                if(it != statistic.end())
+                    result << print_grade(it->second, 2);
+                else
+                    result << "-";
+            }
+        }
     }
+    result << " & ";
+    auto it = statistic.find(final_id);
+    if(it != statistic.end())
+        result << print_grade(it->second, 2);
+    else
+        result << "-";
+    if(discipline.show_mention == "true")
+        result << " & -";
+    result << " \\\\\n";
+
     return result.str();
 }
 void LatexWriter::generate_grades(Discipline discipline) {
@@ -190,55 +209,88 @@ void LatexWriter::generate_grades(Discipline discipline) {
 
     // statistics
     if(discipline.show_statistics == "true") {
-        int idx = 1;
         std::map<std::pair<std::string, int>, double> evpresents, evavg;
         std::map<std::pair<std::string, int>, double> evmax, evmin;
-        for(auto evset : discipline.evaluationsets) {
-            if(evset.show_in_pdf == "default") {
-                for(uint i = 0; i < evset.max_score.size(); i++) {
-                    int presents = 0;
-                    double sum = 0, max = 0, min = 100;
-                    for(auto student : discipline.students) {
-                        int subs_idx = evset.subs_idx(student.evaluation_grades[evset.name],
-                                            student.substitutives[evset.name]);
+
+        double grade;
+        std::pair<std::string,int> evaluation_id;
+        for(auto student : discipline.students) {
+            for(auto evset : discipline.evaluationsets) {
+                if(evset.show_in_pdf == "default") {
+                    int subs_idx = evset.subs_idx(
+                                        student.evaluation_grades[evset.name],
+                                        student.substitutives[evset.name]);
+
+                    for(uint i = 0; i < evset.max_score.size(); i++) {
                         if(student.evaluation_grades[evset.name][i] == -1 &&
                             subs_idx != i)
                             continue;
 
-                        double grade;
-                        if(subs_idx == i)
-                            grade = student.substitutives[evset.name];
-                        else
-                            grade = student.evaluation_grades[evset.name][i];
-                        presents++;
-                        sum += grade;
-                        max = std::max(max, grade);
-                        min = std::min(min, grade);
+                        grade = student.evaluation_grades[evset.name][i];
+                        evaluation_id = std::make_pair(evset.name, i);
+                        if(evpresents.find(evaluation_id) == evpresents.end()) {
+                            evpresents[evaluation_id] = 1;
+                            evavg[evaluation_id] = grade;
+                            evmax[evaluation_id] = grade;
+                            evmin[evaluation_id] = grade;
+                        } else {
+                            evpresents[evaluation_id]++;
+                            evavg[evaluation_id] += grade;
+                            evmax[evaluation_id] = std::max(evmax[evaluation_id], grade);
+                            evmin[evaluation_id] = std::min(evmin[evaluation_id], grade);
+                        }
                     }
-                    if(presents) {
-                        evpresents[std::make_pair(evset.name,i)] = presents;
-                        evavg[std::make_pair(evset.name,i)] = sum / presents;
-                        evmax[std::make_pair(evset.name,i)] = max;
-                        evmin[std::make_pair(evset.name,i)] = min;
-                    }
-                }
-            } else if(evset.show_in_pdf == "percentage" ||
-                        evset.show_in_pdf == "average") {
-                double sum = 0, max = 0, min = 100;
-                for(auto student : discipline.students) {
-                    double grade;
+                } else {
                     grade = evset.average(student.evaluation_grades[evset.name],
                                             student.substitutives[evset.name]);
-                    sum += grade;
-                    max = std::max(max, grade);
-                    min = std::min(min, grade);
+                    if (evset.show_in_pdf == "percentage" ||
+                            evset.show_in_pdf == "average") {
+                        evaluation_id = std::make_pair(evset.name, 0);
+                    } else {
+                        evaluation_id = others_id;
+                    }
+
+                    if(evavg.find(evaluation_id) == evavg.end()) {
+                        evavg[evaluation_id] = grade;
+                        evmax[evaluation_id] = grade;
+                        evmin[evaluation_id] = grade;
+                    } else {
+                        evavg[evaluation_id] += grade;
+                        evmax[evaluation_id] = std::max(evmax[evaluation_id], grade);
+                        evmin[evaluation_id] = std::min(evmin[evaluation_id], grade);
+                    }
                 }
-                evavg[std::make_pair(evset.name,0)] = sum/discipline.students.size();
-                evmax[std::make_pair(evset.name,0)] = max;
-                evmin[std::make_pair(evset.name,0)] = min;
-            } else // evset.show_in_pdf == "none"
-                continue;
+            }
+            grade = discipline.final_score(student);
+            if(evavg.find(final_id) == evavg.end()) {
+                evavg[final_id] = grade;
+                evmax[final_id] = grade;
+                evmin[final_id] = grade;
+            } else {
+                evavg[final_id] += grade;
+                evmax[final_id] = std::max(evmax[final_id], grade);
+                evmin[final_id] = std::min(evmin[final_id], grade);
+            }
         }
+        for(auto evset : discipline.evaluationsets) {
+            if(evset.show_in_pdf == "default") {
+                for(uint i = 0; i < evset.max_score.size(); i++) {
+                    evaluation_id = std::make_pair(evset.name, i);
+                    if(evpresents.find(evaluation_id) != evpresents.end())
+                            evavg[evaluation_id] /= evpresents[evaluation_id];
+                }
+            } else {
+                if (evset.show_in_pdf == "percentage" ||
+                        evset.show_in_pdf == "average") {
+                    evaluation_id = std::make_pair(evset.name, 0);
+                } else {
+                    evaluation_id = others_id;
+                }
+                evavg[evaluation_id] /= discipline.students.size();
+            }
+        }
+        evavg[final_id] /= discipline.students.size();
+
         grades << "\\toprule\n";
         grades << "\\textbf{Estatísticas} & \\multicolumn{" << num_columns - 1;
         grades << "}{c}{} \\\\\n";
@@ -246,37 +298,13 @@ void LatexWriter::generate_grades(Discipline discipline) {
         grades << "\\rowcolor[gray]{.9}\n";
         grades << "\\multicolumn{1}{l}{Presentes}";
         grades << print_statistics(discipline, evpresents, "int");
-        if(discipline.show_others == "true" && discipline.has_hidden_grades())
-            grades << " & -";
-        grades << " & -";
-        if(discipline.show_mention == "true")
-            grades << " & -";
-        grades << " \\\\\n";
         grades << "\\multicolumn{1}{l}{Média}";
         grades << print_statistics(discipline, evavg);
-        if(discipline.show_others == "true" && discipline.has_hidden_grades())
-            grades << " & -";
-        grades << " & -";
-        if(discipline.show_mention == "true")
-            grades << " & -";
-        grades << " \\\\\n";
         grades << "\\rowcolor[gray]{.9}\n";
         grades << "\\multicolumn{1}{l}{Maior Nota}";
         grades << print_statistics(discipline, evmax);
-        if(discipline.show_others == "true" && discipline.has_hidden_grades())
-            grades << " & -";
-        grades << " & -";
-        if(discipline.show_mention == "true")
-            grades << " & -";
-        grades << " \\\\\n";
         grades << "\\multicolumn{1}{l}{Menor Nota}";
         grades << print_statistics(discipline, evmin);
-        if(discipline.show_others == "true" && discipline.has_hidden_grades())
-            grades << " & -";
-        grades << " & -";
-        if(discipline.show_mention == "true")
-            grades << " & -";
-        grades << " \\\\\n";
     }
 
     grades << "\\bottomrule\n";
