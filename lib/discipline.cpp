@@ -40,6 +40,14 @@ void Discipline::view_students() {
     }
 }
 
+bool Discipline::has_any_subs(void) {
+    for(auto evset : evaluationsets)
+        if(evset.subs_max_score != -1.0)
+            for(auto student : students)
+                if(student.substitutives[evset.name] != -1.0)
+                    return true;
+    return false;
+}
 bool Discipline::has_hidden_grades(void) {
     for(auto evset : evaluationsets)
         if(evset.show_in_pdf == "none")

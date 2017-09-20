@@ -33,6 +33,7 @@ public:
     void info(void);
     void view_students(void);
     bool has_hidden_grades(void);
+    bool has_any_subs(void);
     double hidden_grades(Student student);
     double final_score(Student student);
     std::string final_mention(Student student);

@@ -24,7 +24,7 @@ void LatexWriter::generate_main(std::string prefix) {
     main_tex << "\\begin{huge}\\begin{center}\n";
     main_tex << "\t\\textbf{\\textsc{Menções Finais}}\n";
     main_tex << "\\end{center}\\end{huge}\n\n";
-    main_tex << "\\input{.latex/grades_" << prefix << "}\n";
+    main_tex << "\\input{.latex/grades_" << prefix << "}\n\n";
     main_tex << "\\input{.latex/charts_" << prefix << "}\n\n";
     main_tex << "\\end{document}\n";
     main_tex.close();
@@ -314,6 +314,12 @@ void LatexWriter::generate_grades(Discipline discipline) {
 
     grades << "\\bottomrule\n";
     grades << "\\end{longtable}\n";
+
+    if(discipline.has_any_subs()) {
+        grades << "\n\\footnotesize{\\textit{* As notas em negrito representam";
+        grades << " notas de avaliações substitutivas.}}\n";
+    }
+
     grades.close();
 }
 void LatexWriter::generate_charts(Discipline discipline) {
