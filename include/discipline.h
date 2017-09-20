@@ -25,7 +25,7 @@ public:
     std::string workload, credits;
     std::string professor, classname;
     std::string students_file, uri_file;
-    std::string show_mention, show_others, show_statistics;
+    std::string show_mention, show_others, show_statistics, show_charts;
     std::vector<Student> students;
     std::vector<EvaluationSet> evaluationsets;
     std::string prefix;

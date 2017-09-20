@@ -101,6 +101,7 @@ void Discipline::parse_discipline_section(ConfigFile cf) {
     this->show_mention = cf.value(discipline_section, "show_mention", "true");
     this->show_others = cf.value(discipline_section, "show_others", "true");
     this->show_statistics = cf.value(discipline_section, "show_statistics", "true");
+    this->show_charts = cf.value(discipline_section, "show_charts", "true");
 }
 void Discipline::parse_evaluation_sets(ConfigFile cf) {
     for(auto section : cf.content) {

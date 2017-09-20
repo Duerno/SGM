@@ -20,6 +20,7 @@ void init(std::string prefix = default_prefix) {
     system(("cp " + ROOT_FOLDER + "/static/logo_fga.pdf .latex/.").c_str());
     system(("cp " + ROOT_FOLDER + "/static/main.tex .latex/main_" + prefix +
             ".tex").c_str());
+    system(("cp " + ROOT_FOLDER + "/static/pgf-pie.sty .latex/pgf-pie.sty").c_str());
     LatexWriter::generate_main(prefix);
 }
 void build(std::string prefix = default_prefix) {

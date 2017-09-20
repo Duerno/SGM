@@ -26,6 +26,7 @@ public:
     static void generate_latex(Discipline discipline);
     static void generate_header(Discipline discipline);
     static void generate_grades(Discipline discipline);
+    static void generate_charts(Discipline discipline);
 };
 
 #endif // LATEX_WRITER_H_

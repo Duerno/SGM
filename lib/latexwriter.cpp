@@ -20,17 +20,19 @@ LatexWriter::LatexWriter() {
 void LatexWriter::generate_main(std::string prefix) {
     std::string filename(".latex/main_" + prefix + ".tex");
     std::ofstream main_tex(filename, std::fstream::app);
-    main_tex << "\\input{.latex/header_" << prefix << "}\n\n";
+    main_tex << "\n\\input{.latex/header_" << prefix << "}\n\n";
     main_tex << "\\begin{huge}\\begin{center}\n";
     main_tex << "\t\\textbf{\\textsc{Menções Finais}}\n";
     main_tex << "\\end{center}\\end{huge}\n\n";
-    main_tex << "\\input{.latex/grades_" << prefix << "}\n\n";
+    main_tex << "\\input{.latex/grades_" << prefix << "}\n";
+    main_tex << "\\input{.latex/charts_" << prefix << "}\n\n";
     main_tex << "\\end{document}\n";
     main_tex.close();
 }
 void LatexWriter::generate_latex(Discipline discipline) {
     LatexWriter::generate_header(discipline);
     LatexWriter::generate_grades(discipline);
+    LatexWriter::generate_charts(discipline);
 }
 void LatexWriter::generate_header(Discipline discipline) {
     std::ofstream header(".latex/header_" + discipline.prefix + ".tex");
@@ -310,4 +312,34 @@ void LatexWriter::generate_grades(Discipline discipline) {
     grades << "\\bottomrule\n";
     grades << "\\end{longtable}\n";
     grades.close();
+}
+void LatexWriter::generate_charts(Discipline discipline) {
+    std::ofstream charts(".latex/charts_" + discipline.prefix + ".tex");
+    if(discipline.show_charts == "false") {
+        charts.close();
+        return;
+    }
+
+    std::map<std::string, int> mentions;
+    for(auto student : discipline.students) {
+        if(mentions.find(discipline.final_mention(student)) == mentions.end()) {
+            mentions[discipline.final_mention(student)] = 1;
+        } else {
+            mentions[discipline.final_mention(student)]++;
+        }
+    }
+    charts << "\\centering\n";
+    charts << "\\begin{tikzpicture}\n";
+    charts << "\\pie[text=legend, radius=2, explode=0.1]{\n";
+    for(auto mention : mentions) {
+        charts << "\t" << mention.second * 100.0 / discipline.students.size();
+        charts << "/" << mention.first;
+        if(mention != *mentions.rbegin()) {
+            charts << ",";
+        }
+        charts << "\n";
+    }
+    charts << "}\n";
+    charts << "\\end{tikzpicture}\n";
+    charts.close();
 }
