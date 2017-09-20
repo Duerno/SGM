@@ -228,7 +228,11 @@ void LatexWriter::generate_grades(Discipline discipline) {
                             subs_idx != i)
                             continue;
 
-                        grade = student.evaluation_grades[evset.name][i];
+                        if(subs_idx == i) {
+                            grade = student.substitutives[evset.name];
+                        } else {
+                            grade = student.evaluation_grades[evset.name][i];
+                        }
                         evaluation_id = std::make_pair(evset.name, i);
                         if(evpresents.find(evaluation_id) == evpresents.end()) {
                             evpresents[evaluation_id] = 1;
@@ -258,12 +262,20 @@ void LatexWriter::generate_grades(Discipline discipline) {
                             evmin[evaluation_id] = std::min(evmin[evaluation_id], grade);
                         }
                     } else {
-                        if(evavg.find(others_id) == evavg.end()) {
-                            evavg[others_id] = grade * evset.perc_of_score / 100.0;
-                        } else {
-                            evavg[others_id] += grade * evset.perc_of_score / 100.0;
-                        }
+                        continue;
                     }
+                }
+            }
+            if(discipline.has_hidden_grades()) {
+                grade = discipline.hidden_grades(student);
+                if(evavg.find(others_id) == evavg.end()) {
+                    evavg[others_id] = grade;
+                    evmax[evaluation_id] = grade;
+                    evmin[evaluation_id] = grade;
+                } else {
+                    evavg[others_id] += grade;
+                    evmax[others_id] = std::max(evmax[others_id], grade);
+                    evmin[others_id] = std::min(evmin[others_id], grade);
                 }
             }
             grade = discipline.final_score(student);
