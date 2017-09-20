@@ -80,17 +80,17 @@ std::string LatexWriter::print_statistics(Discipline discipline,
                 result << print_grade(it->second, 2);
             else
                 result << "-";
-        } else {
-            if(discipline.show_others == "true" &&
-                                            discipline.has_hidden_grades()) {
-                result << " & ";
-                auto it = statistic.find(others_id);
-                if(it != statistic.end())
-                    result << print_grade(it->second, 2);
-                else
-                    result << "-";
-            }
+        } else { // "show_in_pdf" == "none"
+            continue;
         }
+    }
+    if(discipline.show_others == "true" && discipline.has_hidden_grades()) {
+        result << " & ";
+        auto it = statistic.find(others_id);
+        if(it != statistic.end())
+            result << print_grade(it->second, 2);
+        else
+            result << "-";
     }
     result << " & ";
     auto it = statistic.find(final_id);
@@ -248,18 +248,21 @@ void LatexWriter::generate_grades(Discipline discipline) {
                     if (evset.show_in_pdf == "percentage" ||
                             evset.show_in_pdf == "average") {
                         evaluation_id = std::make_pair(evset.name, 0);
+                        if(evavg.find(evaluation_id) == evavg.end()) {
+                            evavg[evaluation_id] = grade;
+                            evmax[evaluation_id] = grade;
+                            evmin[evaluation_id] = grade;
+                        } else {
+                            evavg[evaluation_id] += grade;
+                            evmax[evaluation_id] = std::max(evmax[evaluation_id], grade);
+                            evmin[evaluation_id] = std::min(evmin[evaluation_id], grade);
+                        }
                     } else {
-                        evaluation_id = others_id;
-                    }
-
-                    if(evavg.find(evaluation_id) == evavg.end()) {
-                        evavg[evaluation_id] = grade;
-                        evmax[evaluation_id] = grade;
-                        evmin[evaluation_id] = grade;
-                    } else {
-                        evavg[evaluation_id] += grade;
-                        evmax[evaluation_id] = std::max(evmax[evaluation_id], grade);
-                        evmin[evaluation_id] = std::min(evmin[evaluation_id], grade);
+                        if(evavg.find(others_id) == evavg.end()) {
+                            evavg[others_id] = grade * evset.perc_of_score / 100.0;
+                        } else {
+                            evavg[others_id] += grade * evset.perc_of_score / 100.0;
+                        }
                     }
                 }
             }
@@ -279,18 +282,18 @@ void LatexWriter::generate_grades(Discipline discipline) {
                 for(uint i = 0; i < evset.max_score.size(); i++) {
                     evaluation_id = std::make_pair(evset.name, i);
                     if(evpresents.find(evaluation_id) != evpresents.end())
-                            evavg[evaluation_id] /= evpresents[evaluation_id];
+                        evavg[evaluation_id] /= evpresents[evaluation_id];
                 }
-            } else {
-                if (evset.show_in_pdf == "percentage" ||
+            } else if (evset.show_in_pdf == "percentage" ||
                         evset.show_in_pdf == "average") {
-                    evaluation_id = std::make_pair(evset.name, 0);
-                } else {
-                    evaluation_id = others_id;
-                }
+                evaluation_id = std::make_pair(evset.name, 0);
                 evavg[evaluation_id] /= discipline.students.size();
+            } else { // "show_in_pdf" == "none"
+                continue;
             }
         }
+        if(evavg.find(others_id) != evavg.end())
+            evavg[others_id] /= discipline.students.size();
         evavg[final_id] /= discipline.students.size();
 
         grades << "\\toprule\n";
@@ -331,10 +334,18 @@ void LatexWriter::generate_charts(Discipline discipline) {
     charts << "\\centering\n";
     charts << "\\begin{tikzpicture}\n";
     charts << "\\pie[text=legend, radius=2, explode=0.1]{\n";
-    for(auto mention : mentions) {
-        charts << "\t" << mention.second * 100.0 / discipline.students.size();
-        charts << "/" << mention.first;
-        if(mention != *mentions.rbegin()) {
+    charts << std::fixed << std::setprecision(1);
+    std::vector<std::string> str_mentions = {"SS","MS","MM","MI","II","SR"};
+    std::string last;
+    for(auto mention : str_mentions)
+        if(mentions.find(mention) != mentions.end())
+            last = mention;
+    for(auto mention : str_mentions) {
+        if(mentions.find(mention) == mentions.end())
+            continue;
+        charts << "\t" << mentions[mention] * 100.0 / discipline.students.size();
+        charts << "/" << mention;
+        if(mention != last) {
             charts << ",";
         }
         charts << "\n";
