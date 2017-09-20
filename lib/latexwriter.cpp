@@ -328,8 +328,8 @@ void LatexWriter::generate_grades(Discipline discipline) {
     grades << "\\end{longtable}\n";
 
     if(discipline.has_any_subs()) {
-        grades << "\n\\footnotesize{\\textit{* As notas em negrito representam";
-        grades << " notas de avaliações substitutivas.}}\n";
+        grades << "\n\\let\\thefootnote\\relax\\footnotetext{As notas em ";
+        grades << "negrito representam notas de avaliações substitutivas.}\n";
     }
 
     grades.close();
