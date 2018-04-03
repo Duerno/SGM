@@ -11,13 +11,13 @@ BUILDDIR = build
 TARGET = sgm
 
 compile:
-	@echo " Linking..."
+	@echo " Compiling..."
 	$(CC) $(CFLAGS) -c $(LIBDIR)/*.$(SRCEXT) -I $(INCDIR)
 	$(CC) $(CFLAGS) -c $(SRCDIR)/*.$(SRCEXT) -I $(INCDIR) -L $(LIBDIR)
 	@mkdir -p $(BUILDDIR)
 	@mv *.o $(BUILDDIR)
 
-	@echo " Building..."
+	@echo " Linking and Building..."
 	$(CC) $(CFLAGS) $(BUILDDIR)/*.o -o $(TARGET)
 
 install:
