@@ -182,8 +182,19 @@ void Discipline::parse_grades() {
                     id = student.uri_name;
                 else
                     id = student.registration_id;
+
                 if(grades.find(id) != grades.end())
                     student.evaluation_grades[evset.name][i] = grades[id];
+                else if(evset.reader_type == "uri") {
+                    for(auto g : grades) {
+                        std::string end = g.first.substr(g.first.size()-3);
+                        std::string name = g.first.substr(0, g.first.size()-3);
+                        if(end == "..." && id.substr(0, name.size()) == name) {
+                            student.evaluation_grades[evset.name][i] = g.second;
+                            break;
+                        }
+                    }
+                }
             }
         }
         if(evset.subs_max_score != -1.0) {
@@ -204,6 +215,16 @@ void Discipline::parse_grades() {
                     id = student.registration_id;
                 if(grades.find(id) != grades.end())
                     student.substitutives[evset.name] = grades[id];
+                else if(evset.reader_type == "uri") {
+                    for(auto g : grades) {
+                        std::string end = g.first.substr(g.first.size()-3);
+                        std::string name = g.first.substr(0, g.first.size()-3);
+                        if(end == "..." && id.substr(0, name.size()) == name) {
+                            student.substitutives[evset.name] = g.second;
+                            break;
+                        }
+                    }
+                }
             }
         }
     }

@@ -78,7 +78,8 @@ std::map<std::string, std::string> Reader::read_students_uri(std::string filenam
         std::stringstream line(str);
         std::string uri_id, uri_name;
         line >> str; // read student number
-        line >> uri_id; // read student id
+        line >> uri_id; // read student uri id
+        line >> str; // read student id
         getline(line, str, '\t'); // read tab
         getline(line, uri_name, '\t'); // read student uri name
         uri_students[uri_id] = uri_name;
@@ -138,7 +139,8 @@ std::map<std::string, double> Reader::read_uri_grades(std::string filename,
     while(getline(fstudents, str)) {
         std::stringstream line(str);
         getline(line, str, '\t'); // read uri name
-        line >> grade;
+        line >> grade; // read uri absolute grade
+        line >> grade; // read uri grade percentage
         grades[trim(str)] = grade / 10.0;
     }
     return grades;
