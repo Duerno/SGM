@@ -349,15 +349,31 @@ void LatexWriter::generate_charts(Discipline discipline) {
             mentions[discipline.final_mention(student)]++;
         }
     }
-    charts << "\\centering\n";
-    charts << "\\begin{tikzpicture}\n";
-    charts << "\\pie[text=legend, radius=2, explode=0.1]{\n";
-    charts << std::fixed << std::setprecision(1);
+
     std::vector<std::string> str_mentions = {"SS","MS","MM","MI","II","SR"};
-    std::string last;
+    std::string last = str_mentions.front();
     for(auto mention : str_mentions)
         if(mentions.find(mention) != mentions.end())
             last = mention;
+    std::map<std::string,std::string> mention_colors = {{"SS","green!70"},
+                                                        {"MS","green!40"},
+                                                        {"MM","green!20"},
+                                                        {"MI","red!20"},
+                                                        {"II","red!40"},
+                                                        {"SR","red!70"}};
+    charts << "\\centering\n";
+    charts << "\\begin{tikzpicture}\n";
+    charts << "\\pie[";
+    charts << "color={";
+    for(auto mention : str_mentions) {
+        if(mentions.find(mention) != mentions.end()) {
+            charts << mention_colors[mention];
+            if(mention != last)
+                charts << ",";
+        }
+    }
+    charts << "}, text=legend, radius=2, explode=0.1]{\n";
+    charts << std::fixed << std::setprecision(1);
     for(auto mention : str_mentions) {
         if(mentions.find(mention) == mentions.end())
             continue;
