@@ -149,7 +149,7 @@ void LatexWriter::generate_grades(Discipline discipline) {
     for(auto evset : discipline.evaluationsets) {
         if(evset.show_in_pdf == "default") {
             for(uint i = 0; i < evset.max_score.size(); i++)
-                grades << " & \\textbf{$" << evset.prefix << "_" << i+1 << "$}";
+                grades << " & \\textbf{$" << evset.prefix << "_{"<< i+1 <<"}$}";
         } else if(evset.show_in_pdf == "percentage")
             grades << " & \\textbf{(\\%)}";
         else if(evset.show_in_pdf == "average")
