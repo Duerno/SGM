@@ -35,8 +35,8 @@ void Discipline::info() {
 void Discipline::view_students() {
     std::cout << "[STUDENTS]" << std::endl;
     for(auto s : students) {
-        std::cout << s.name << "," << s.registration_id << "," << s.uri_id;
-        std::cout << "," << s.uri_name << std::endl;
+        std::cout << s.registration_id << "," << s.name << ",";
+        std::cout << s.uri_name << std::endl;
     }
 }
 
@@ -153,12 +153,12 @@ void Discipline::parse_students() {
         }
     }
 
-    // map<str,str> = 'uri_id' to 'uri_name'
+    // map<str,str> = 'id' to 'uri_name'
     if(uri_file != "") {
         auto uri_students = Reader::read_students_uri(uri_file);
         for(auto &student : students) {
-            if(uri_students.find(student.uri_id) != uri_students.end()) {
-                student.uri_name = uri_students[student.uri_id];
+            if(uri_students.find(student.registration_id) != uri_students.end()) {
+                student.uri_name = uri_students[student.registration_id];
             }
         }
     }

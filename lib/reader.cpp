@@ -59,8 +59,6 @@ std::vector<Student> Reader::read_students(std::string filename) {
         student.registration_id = trim(str);
         std::getline(line, str, ',');
         student.name = capitalize(trim(str));
-        std::getline(line, str);
-        student.uri_id = trim(str);
         students.push_back(student);
     }
     return students;
@@ -72,17 +70,22 @@ std::map<std::string, std::string> Reader::read_students_uri(std::string filenam
         std::cerr << " opened." << std::endl;
         exit(1);
     }
+    // map<str,str> = 'id' to 'uri_name'
     std::map<std::string, std::string> uri_students;
     std::string str;
     while(getline(fstudents, str)) {
         std::stringstream line(str);
-        std::string uri_id, uri_name;
+        std::string id, uri_name;
         line >> str; // read student number
-        line >> uri_id; // read student uri id
-        line >> str; // read student id
+        if(str[0] == '#')
+            continue;
+        line >> str; // read student uri id
+        line >> id; // read student id
+        id = id.substr(0, 2) + "/" + id.substr(2);
+        // std::cout << "[DEBUG] ID:[" << id << "]\n";
         getline(line, str, '\t'); // read tab
         getline(line, uri_name, '\t'); // read student uri name
-        uri_students[uri_id] = uri_name;
+        uri_students[id] = uri_name;
     }
     return uri_students;
 }

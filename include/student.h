@@ -8,8 +8,7 @@
 class Student {
 public:
     Student(void);
-    std::string name, registration_id;
-    std::string uri_name, uri_id;
+    std::string name, registration_id, uri_name;
     std::map<std::string, double> substitutives;
     std::map<std::string, std::vector<double>> evaluation_grades;
 };
