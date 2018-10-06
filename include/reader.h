@@ -25,6 +25,13 @@ public:
                                                          std::string uri_file);
     static std::map<std::string, double> read_boca_grades(std::string filename,
                                                     const double NUM_PROBLEMS);
+    static std::map<std::string, double> read_300_grades(std::string filename,
+                                                const double MAX_SCORE,
+                                                std::vector<Student> students);
+    static std::map<std::string, double> read_boca_300_grades(
+                                                std::string filename,
+                                                const double NUM_PROBLEMS,
+                                                std::vector<Student> students);
 };
 
 #endif // READER_H_

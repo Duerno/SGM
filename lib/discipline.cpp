@@ -167,13 +167,20 @@ void Discipline::parse_grades() {
     for(auto evset : evaluationsets) {
         for(uint i = 0; i < evset.max_score.size(); i++) {
             std::string filename(evset.name + "/" + evset.prefix + "_" +
-                                    std::to_string(i+1) + ".csv");
+                                    std::to_string(i+1));
             std::map<std::string, double> grades;
             if(evset.reader_type == "uri")
                 grades = Reader::read_uri_grades(filename, uri_file);
             else if(evset.reader_type == "boca")
                 grades = Reader::read_boca_grades(filename, evset.max_score[i]);
-            else
+            else if(evset.reader_type == "boca_300")
+                grades = Reader::read_boca_300_grades(filename,
+                                                        evset.max_score[i],
+                                                        students);
+            else if(evset.reader_type == "300")
+                grades = Reader::read_300_grades(filename, evset.max_score[i],
+                                                    students);
+            else // evset.reader_type == "default"
                 grades = Reader::read_grades(filename, evset.max_score[i],
                                                 students);
             for(auto &student : students) {
@@ -198,13 +205,15 @@ void Discipline::parse_grades() {
             }
         }
         if(evset.subs_max_score != -1.0) {
-            std::string filename(evset.name + "/" + evset.prefix + "_subs.csv");
+            std::string filename(evset.name + "/" + evset.prefix + "_subs");
             std::map<std::string, double> grades;
             if(evset.reader_type == "uri")
                 grades = Reader::read_uri_grades(filename, uri_file);
-            else if(evset.reader_type == "boca")
-                grades = Reader::read_boca_grades(filename, evset.subs_max_score);
-            else
+            else if(evset.reader_type == "boca" || evset.reader_type ==
+                                                    "boca_300")
+                grades = Reader::read_boca_grades(filename,
+                                                    evset.subs_max_score);
+            else // evset.reader_type in {"300", "default"}
                 grades = Reader::read_grades(filename, evset.subs_max_score,
                                                 students);
             for(auto &student : students) {

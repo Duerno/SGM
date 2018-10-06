@@ -92,6 +92,7 @@ std::map<std::string, std::string> Reader::read_students_uri(std::string filenam
 
 std::map<std::string, double> Reader::read_grades(std::string filename,
                         const double MAX_SCORE, std::vector<Student> students) {
+    filename += ".csv";
     std::ifstream fstudents(filename);
     if(not fstudents.good()) {
         std::ofstream ofs;
@@ -124,10 +125,11 @@ std::map<std::string, double> Reader::read_uri_grades(std::string filename,
                                                         std::string uri_file) {
     if(uri_file == "") {
         std::cerr << "Batadase error: when using the reader type 'URI', you ";
-        std::cerr << "must specify an URI students file with parameter ";
+        std::cerr << "must specify an URI students' file with parameter ";
         std::cerr << "'uri_file'.\n";
         exit(1);
     }
+    filename += ".csv";
     std::ifstream fstudents(filename);
     if(not fstudents.good()) {
         std::ofstream ofs;
@@ -150,6 +152,7 @@ std::map<std::string, double> Reader::read_uri_grades(std::string filename,
 }
 std::map<std::string, double> Reader::read_boca_grades(std::string filename,
                                                 const double NUM_PROBLEMS) {
+    filename += ".csv";
     std::ifstream fstudents(filename);
     if(not fstudents.good()) {
         std::ofstream ofs;
@@ -176,5 +179,57 @@ std::map<std::string, double> Reader::read_boca_grades(std::string filename,
         grade = stod(str.substr(begin,size));
         grades[trim(id)] = grade * 10.0 / NUM_PROBLEMS;
     }
+    return grades;
+}
+std::map<std::string, double> Reader::read_300_grades(std::string filename,
+                    const double MAX_SCORE, std::vector<Student> students) {
+    auto grades = Reader::read_grades(filename, MAX_SCORE, students);
+
+    std::string helped_filename(filename + "_300_members");
+    auto helped = Reader::read_grades(helped_filename, MAX_SCORE, students);
+    for(auto student : helped) {
+        if(grades.find(student.first) == grades.end())
+            grades[student.first] = student.second;
+        else
+            grades[student.first] = std::max(student.second,
+                                            grades[student.first]);
+    }
+
+    std::string helpers_filename(filename + "_300_leaders");
+    auto helpers = Reader::read_grades(helpers_filename, MAX_SCORE, students);
+    for(auto student : helpers) {
+        if(helped.find(student.first) != helped.end())
+            continue;
+        if(grades[student.first] < 0)
+            grades[student.first] = 0;
+        grades[student.first] += student.second;
+    }
+
+    return grades;
+}
+std::map<std::string, double> Reader::read_boca_300_grades(std::string filename,
+                    const double NUM_PROBLEMS, std::vector<Student> students) {
+    auto grades = Reader::read_boca_grades(filename, NUM_PROBLEMS);
+
+    std::string helped_filename(filename + "_300_members");
+    auto helped = Reader::read_boca_grades(helped_filename, NUM_PROBLEMS);
+    for(auto student : helped) {
+        if(grades.find(student.first) == grades.end())
+            grades[student.first] = student.second;
+        else
+            grades[student.first] = std::max(student.second,
+                                            grades[student.first]);
+    }
+
+    std::string helpers_filename(filename + "_300_leaders");
+    auto helpers = Reader::read_grades(helpers_filename, 10.0L, students);
+    for(auto student : helpers) {
+        if(helped.find(student.first) != helped.end())
+            continue;
+        if(grades[student.first] < 0)
+            grades[student.first] = 0;
+        grades[student.first] += student.second;
+    }
+
     return grades;
 }
