@@ -185,9 +185,17 @@ std::map<std::string, double> Reader::read_300_grades(std::string filename,
                     const double MAX_SCORE, std::vector<Student> students) {
     auto grades = Reader::read_grades(filename, MAX_SCORE, students);
 
+    std::string p11g_filename(filename + "_300_p11g");
+    auto p11g = Reader::read_grades(p11g_filename, 10.0L, students);
+
     std::string helped_filename(filename + "_300_members");
     auto helped = Reader::read_grades(helped_filename, MAX_SCORE, students);
+
     for(auto student : helped) {
+
+        if(p11g.find(student.first) != p11g.end() && !p11g[student.first])
+            continue;
+
         if(grades.find(student.first) == grades.end())
             grades[student.first] = student.second;
         else
@@ -197,7 +205,12 @@ std::map<std::string, double> Reader::read_300_grades(std::string filename,
 
     std::string helpers_filename(filename + "_300_leaders");
     auto helpers = Reader::read_grades(helpers_filename, MAX_SCORE, students);
+
     for(auto student : helpers) {
+
+        if(p11g.find(student.first) != p11g.end() && !p11g[student.first])
+            continue;
+
         if(helped.find(student.first) != helped.end())
             continue;
         if(grades[student.first] < 0)
@@ -211,9 +224,17 @@ std::map<std::string, double> Reader::read_boca_300_grades(std::string filename,
                     const double NUM_PROBLEMS, std::vector<Student> students) {
     auto grades = Reader::read_boca_grades(filename, NUM_PROBLEMS);
 
+    std::string p11g_filename(filename + "_300_p11g");
+    auto p11g = Reader::read_grades(p11g_filename, 10.0L, students);
+
     std::string helped_filename(filename + "_300_members");
     auto helped = Reader::read_boca_grades(helped_filename, NUM_PROBLEMS);
+
     for(auto student : helped) {
+
+        if(p11g.find(student.first) != p11g.end() && !p11g[student.first])
+            continue;
+
         if(grades.find(student.first) == grades.end())
             grades[student.first] = student.second;
         else
@@ -223,7 +244,12 @@ std::map<std::string, double> Reader::read_boca_300_grades(std::string filename,
 
     std::string helpers_filename(filename + "_300_leaders");
     auto helpers = Reader::read_grades(helpers_filename, 10.0L, students);
+
     for(auto student : helpers) {
+
+        if(p11g.find(student.first) != p11g.end() && !p11g[student.first])
+            continue;
+
         if(helped.find(student.first) != helped.end())
             continue;
         if(grades[student.first] < 0)
